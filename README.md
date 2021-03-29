@@ -5,11 +5,11 @@ docker, and internet connection
 
 ## Build Steps
 
-1. Create a folder named `0_app` in your python project 
-2. Add a file in the folder 0_app, and named it `<yourappname>.conf`
+1. Create a folder named `py2docker` in your python project 
+2. Add a new file in the folder py2docker, and named it `<yourappname>.conf`
 3. Edit `<yourappname>.conf` and input the string of following keys
-4. Create a file named requirements.txt, and edit it as the official pip requirement.txt 
-5. Run script to build (as described bellow) 
+4. Create or edit requirements.txt (for pip) in the folder py2docker
+5. Run script to build
 ```
 bash <(curl -s https://raw.githubusercontent.com/juouyang-aicots/python_to_docker/main/build.sh)
 ```
@@ -33,13 +33,13 @@ APP_ENTRYPOINT='hello.py'
 ## Example Project 
 ### Folder Structure 
 
+```
 Root folder of your python project 
-├── 0_app 
+├── py2docker 
+│   ├── requirements.txt 
 │   └── hello.conf 
-├──1_build.sh 
-├──2_test.sh 
-├── requirements.txt 
 └── hello.py 
+ ```
  
 requirements.txt 
 ```
