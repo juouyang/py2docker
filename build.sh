@@ -17,7 +17,7 @@ if [ ! -f "$SOURCE_DIR/$APP_ENTRYPOINT" ]; then echo "Entrypoint: $SOURCE_DIR/$A
 if [ -z "$JENKINS_HOME" ]
 then
     ### Manually
-    cd .
+    cd $SOURCE_DIR
 else
     ### JENKINS
     # APP_VERSION='revision_'$SVN_REVISION
@@ -40,7 +40,7 @@ if [ -f ".dockerignore" ]; then mv -f .dockerignore .dockerignore.bak; fi
 all-wcprops
 entries
 format
-
+.gitattributes
 **/.git
 **/.DS_Store
 **/node_modules
@@ -51,16 +51,12 @@ docker-compose*
 .git
 .gitignore
 .vscode
-
-**/0_app
-1_build.sh
-2_test.sh
 EOF
 
 cat <<EOF > Dockerfile.$POSTFIX
 FROM python:$PYTHON_VERSION-slim
 USER root
-COPY $SOURCE_DIR/requirements.txt /tmp
+COPY $SOURCE_DIR/py2docker/requirements.txt /tmp
 RUN apt-get update \
  && apt-get upgrade -yq --no-install-recommends ca-certificates \
  && apt-get clean \
@@ -69,7 +65,7 @@ RUN apt-get update \
  && mkdir -p /builds/app
 COPY $SOURCE_DIR/ /builds/app/
 WORKDIR /builds/app
-ENTRYPOINT ["python3", "$APP_ENTRYPOINT"]
+ENTRYPOINT ["python", "$APP_ENTRYPOINT"]
 EOF
 
 sudo docker build -t $APP_NAME:$APP_VERSION --file ./Dockerfile.$POSTFIX .
@@ -78,7 +74,7 @@ rm -rf .dockerignore
 if [ -f ".dockerignore.bak" ]; then mv -f .dockerignore.bak .dockerignore; fi
 }
 
-for conf in "./0_app/*"
+for conf in "./py2docker/*"
 do
     build $conf
 done
