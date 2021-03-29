@@ -50,5 +50,5 @@ Build
 
 ```
 cd <Root folder of your python project>
-bash <(curl -s https://raw.githubusercontent.com/juouyang-aicots/python_to_docker/main/build.sh)
+curl https://raw.githubusercontent.com/juouyang-aicots/python_to_docker/main/build.sh | bash
 ```
