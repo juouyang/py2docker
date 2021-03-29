@@ -5,14 +5,14 @@ SOURCE_DIR='.'
 build () {
 if [ ! -f "$SOURCE_DIR/$1" ]; then
 	echo "Config: $1 not found"
-    exit -1
+    return 1
 fi
 
 source $SOURCE_DIR/$1
 
-if [ -z "$PYTHON_VERSION" ]; then echo "Config file error" && exit -1; fi
+if [ -z "$PYTHON_VERSION" ]; then echo "Config file error" && return 2; fi
 
-if [ ! -f "$SOURCE_DIR/$APP_ENTRYPOINT" ]; then echo "Entrypoint: $SOURCE_DIR/$APP_ENTRYPOINT not found" && exit -1; fi
+if [ ! -f "$SOURCE_DIR/$APP_ENTRYPOINT" ]; then echo "Entrypoint: $SOURCE_DIR/$APP_ENTRYPOINT not found" && return 3; fi
 
 if [ -z "$JENKINS_HOME" ]
 then
@@ -24,7 +24,7 @@ else
     cd $WORKSPACE
 fi
 
-if [ ! -x "$(command -v docker)" ]; then echo "Access https://docs.docker.com/engine/install/, and install docker first." && exit -1; fi
+if [ ! -x "$(command -v docker)" ]; then echo "Access https://docs.docker.com/engine/install/, and install docker first." && return 4; fi
 
 POSTFIX=$RANDOM
 if [ -f ".dockerignore" ]; then mv -f .dockerignore .dockerignore.bak; fi
@@ -74,7 +74,6 @@ rm -rf .dockerignore
 if [ -f ".dockerignore.bak" ]; then mv -f .dockerignore.bak .dockerignore; fi
 }
 
-for conf in "./py2docker/*"
-do
+for conf in ./py2docker/*.conf; do
     build $conf
 done
