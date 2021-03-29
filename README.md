@@ -1,6 +1,6 @@
-# python_to_docker
+# Pack Python Project into Docker Image
 
-## Pre-requirements 
+## Prerequirements
 docker, and internet connection 
 
 ## Build Steps
@@ -8,13 +8,13 @@ docker, and internet connection
 1. Create a folder named `py2docker` in your python project 
 2. Add a new file in the folder py2docker, and named it `<yourappname>.conf`
 3. Edit `<yourappname>.conf` and input the string of following keys
-4. Create or edit requirements.txt (for pip) in the folder py2docker
-5. Run script to build
+4. Create or edit requirements.txt (for pip) inside the folder py2docker
+5. Run script to build:
 ```
 bash <(curl -s https://raw.githubusercontent.com/juouyang-aicots/python_to_docker/main/build.sh)
 ```
 
-`<yourappname>.conf`
+## `<yourappname>.conf`:
 ``` 
 PYTHON_VERSION='<python_version>' 
 APP_NAME=' <all_lower_case_app_name> ' 
