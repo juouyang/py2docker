@@ -10,16 +10,16 @@ docker, and internet connection
 3. Edit `<yourappname>.conf` and input the string of following keys
 4. Create or edit requirements.txt (for pip) inside the folder py2docker
 5. Run script to build:
-```
-bash <(curl -s https://raw.githubusercontent.com/juouyang-aicots/python_to_docker/main/build.sh)
-```
+
+   ```bash <(curl -s https://raw.githubusercontent.com/juouyang-aicots/python_to_docker/main/build.sh)```
+   
 
 ## `<yourappname>.conf`:
-``` 
-PYTHON_VERSION='<python_version>' 
-APP_NAME=' <all_lower_case_app_name> ' 
-APP_VERSION=' <all_lower_case_app_version> ' 
-APP_ENTRYPOINT=' <yourappmain> ' 
+   ``` 
+   PYTHON_VERSION='<python_version>' 
+   APP_NAME=' <all_lower_case_app_name> ' 
+   APP_VERSION=' <all_lower_case_app_version> ' 
+   APP_ENTRYPOINT=' <yourappmain> ' 
 ``` 
 
 ## Example Project 
@@ -34,20 +34,20 @@ hello/
  ```
 
 ### hello.conf
-``` 
-PYTHON_VERSION='3.7' 
-APP_NAME='hello' 
-APP_VERSION='v0.1' 
-APP_ENTRYPOINT='hello.py' 
-``` 
+   ``` 
+   PYTHON_VERSION='3.7' 
+   APP_NAME='hello' 
+   APP_VERSION='v0.1' 
+   APP_ENTRYPOINT='hello.py' 
+   ``` 
 
 ### requirements.txt 
-```
-requests==2.22.0 
+   ```
+   requests==2.22.0 
 ```
 
 ### Build 
-```
-cd hello/
-curl https://raw.githubusercontent.com/juouyang-aicots/python_to_docker/main/build.sh | bash
-```
+   ```
+   cd hello/
+   curl https://raw.githubusercontent.com/juouyang-aicots/python_to_docker/main/build.sh | bash
+   ```
