@@ -17,8 +17,8 @@ bash <(curl -s https://raw.githubusercontent.com/juouyang-aicots/python_to_docke
 `<yourappname>.conf`
 ``` 
 PYTHON_VERSION='<python_version>' 
-APP_NAME=' <yourappname> ' 
-APP_VERSION=' <yourappversion> ' 
+APP_NAME=' <all_lower_case_app_name> ' 
+APP_VERSION=' <all_lower_case_app_version> ' 
 APP_ENTRYPOINT=' <yourappmain> ' 
 ``` 
 For exmaple: 
