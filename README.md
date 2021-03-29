@@ -26,7 +26,7 @@ APP_ENTRYPOINT=' <yourappmain> '
 ### Folder Structure 
 
 ```
-hello_p2d 
+hello
 ├── py2docker 
 │   ├── requirements.txt 
 │   └── hello.conf 
@@ -48,6 +48,6 @@ requests==2.22.0
 
 ### Build 
 ```
-cd hello_p2d
+cd hello/
 curl https://raw.githubusercontent.com/juouyang-aicots/python_to_docker/main/build.sh | bash
 ```
