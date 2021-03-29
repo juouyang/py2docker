@@ -2,6 +2,7 @@
 
 SOURCE_DIR='.'
 
+build () {
 if [ ! -f "$SOURCE_DIR/$1" ]; then
 	echo "Config: $1 not found"
     exit -1
@@ -71,8 +72,13 @@ WORKDIR /builds/app
 ENTRYPOINT ["python3", "$APP_ENTRYPOINT"]
 EOF
 
-sudo docker rmi $APP_NAME:$APP_VERSION
 sudo docker build -t $APP_NAME:$APP_VERSION --file ./Dockerfile.$POSTFIX .
 rm -rf Dockerfile.$POSTFIX
 rm -rf .dockerignore
 if [ -f ".dockerignore.bak" ]; then mv -f .dockerignore.bak .dockerignore; fi
+}
+
+for conf in "./0_app/*"
+do
+    build $conf
+done
