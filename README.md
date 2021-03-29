@@ -26,8 +26,8 @@ APP_ENTRYPOINT=' <yourappmain> '
 ### Folder Structure 
 
 ```
-hello
-├── py2docker 
+hello/
+├── py2docker/ 
 │   ├── requirements.txt 
 │   └── hello.conf 
 └── hello.py 
