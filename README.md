@@ -21,14 +21,6 @@ APP_NAME=' <all_lower_case_app_name> '
 APP_VERSION=' <all_lower_case_app_version> ' 
 APP_ENTRYPOINT=' <yourappmain> ' 
 ``` 
-For exmaple: 
-``` 
-PYTHON_VERSION='3.7' 
-APP_NAME='hello' 
-APP_VERSION='v0.1' 
-APP_ENTRYPOINT='hello.py' 
-``` 
-
 
 ## Example Project 
 ### Folder Structure 
@@ -40,14 +32,21 @@ hello_p2d
 │   └── hello.conf 
 └── hello.py 
  ```
- 
+
+hello.conf
+``` 
+PYTHON_VERSION='3.7' 
+APP_NAME='hello' 
+APP_VERSION='v0.1' 
+APP_ENTRYPOINT='hello.py' 
+``` 
+
 requirements.txt 
 ```
 requests==2.22.0 
 ```
 
 Build 
-
 ```
 cd hello_p2d
 curl https://raw.githubusercontent.com/juouyang-aicots/python_to_docker/main/build.sh | bash
