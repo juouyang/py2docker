@@ -8,6 +8,7 @@ if [ ! -f "$SOURCE_DIR/$1" ]; then
     return 1
 fi
 
+tr -d '\r' <$SOURCE_DIR/$1 >$SOURCE_DIR/$1
 source $SOURCE_DIR/$1
 
 if [ -z "$PYTHON_VERSION" ]; then echo "Config file error" && return 2; fi
