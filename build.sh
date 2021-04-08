@@ -55,7 +55,7 @@ docker-compose*
 .vscode
 EOF
 
-TZ=$(cat /etc/timezone2 2>/dev/null)
+TZ=$(cat /etc/timezone 2>/dev/null)
 TZ="${TZ:=Asia/Taipei}"
 
 cat <<EOF > Dockerfile.$POSTFIX
