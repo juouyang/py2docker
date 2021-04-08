@@ -19,7 +19,7 @@ Bash version 4.x+, docker, and internet connection
    PYTHON_VERSION='<python_version>' 
    APP_NAME=' <your_app_name> ' 
    APP_VERSION=' <your_app_version> ' 
-   APP_ENTRYPOINT=' <yourappmain> ' 
+   APP_ENTRYPOINT=' <your_app_main> ' 
 ``` 
 
 ## Example Project 
@@ -52,6 +52,7 @@ paho-mqtt==1.5.1
 shioaji==0.3.1.dev8
 psutil==5.8.0
 getmac==0.8.2
+matplotlib
 ```
 
 ### Build 
