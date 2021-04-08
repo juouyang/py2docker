@@ -70,6 +70,9 @@ WORKDIR /builds/app
 ENTRYPOINT ["python", "$APP_ENTRYPOINT"]
 EOF
 
+APP_NAME="${APP_NAME,,}"
+APP_VERSION="${APP_VERSION,,}"
+
 sudo docker rmi $APP_NAME:$APP_VERSION
 sudo docker build -t $APP_NAME:$APP_VERSION --file ./Dockerfile.$POSTFIX .
 rm -rf Dockerfile.$POSTFIX

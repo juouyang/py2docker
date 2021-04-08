@@ -1,7 +1,7 @@
 # Pack Python Project into Docker Image
 
 ## Prerequirements
-docker, and internet connection 
+Bash version 4.x+, docker, and internet connection 
 
 ## Build Steps
 
@@ -17,8 +17,8 @@ docker, and internet connection
 ## `<yourappname>.conf`:
    ``` 
    PYTHON_VERSION='<python_version>' 
-   APP_NAME=' <all_lower_case_app_name> ' 
-   APP_VERSION=' <all_lower_case_app_version> ' 
+   APP_NAME=' <your_app_name> ' 
+   APP_VERSION=' <your_app_version> ' 
    APP_ENTRYPOINT=' <yourappmain> ' 
 ``` 
 
