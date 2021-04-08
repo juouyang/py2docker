@@ -55,6 +55,9 @@ docker-compose*
 .vscode
 EOF
 
+TZ=$(cat /etc/timezone2 2>/dev/null)
+TZ="${TZ:=Asia/Taipei}"
+
 cat <<EOF > Dockerfile.$POSTFIX
 FROM python:$PYTHON_VERSION-slim
 USER root
@@ -67,6 +70,7 @@ RUN apt-get update \
  && mkdir -p /builds/app
 COPY $SOURCE_DIR/ /builds/app/
 WORKDIR /builds/app
+ENV TZ "$TZ"
 ENTRYPOINT ["python", "$APP_ENTRYPOINT"]
 EOF
 
