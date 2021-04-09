@@ -85,3 +85,11 @@ rm -rf "Dockerfile.$POSTFIX"
 rm -rf "requirements.$POSTFIX.txt"
 rm -rf ".dockerignore"
 if [ -f ".dockerignore.bak" ]; then mv -f .dockerignore.bak .dockerignore; fi
+if [ -z "$JENKINS_HOME" ]; then exit 0; fi
+
+# JENKINS post procedure: save docker image to nfs
+DEST_DIR=/media/nfs/jenkins/$JOB_NAME
+sudo rm -rf $DEST_DIR/$APP_NAME/$APP_VERSION/$BUILD_TAG.tar.gz
+sudo mkdir -p $DEST_DIR/$APP_NAME/$APP_VERSION
+sudo chmod -R 777 $DEST_DIR/$APP_NAME/$APP_VERSION
+sudo docker save $APP_NAME:$APP_VERSION | gzip > $DEST_DIR/$APP_NAME/$APP_VERSION/$BUILD_TAG.tar.gz
