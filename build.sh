@@ -1,20 +1,10 @@
 #!/bin/bash
 
+PYTHON_VERSION='3.8'
+APP_NAME=$(ls -A1 *.py | grep -v __main__ | sed -e 's/\.py$//')
+APP_VERSION='next'
+APP_ENTRYPOINT="__main__.py"
 SOURCE_DIR='.'
-
-build () {
-if [ ! -f "$SOURCE_DIR/$1" ]; then
-	echo "Config: $1 not found"
-    return 1
-fi
-
-tr -d '\r' <$SOURCE_DIR/$1 >$SOURCE_DIR/$1.tmp
-source $SOURCE_DIR/$1.tmp
-rm $SOURCE_DIR/$1.tmp
-
-if [ -z "$PYTHON_VERSION" ]; then echo "Config file error" && return 2; fi
-
-if [ ! -f "$SOURCE_DIR/$APP_ENTRYPOINT" ]; then echo "Entrypoint: $SOURCE_DIR/$APP_ENTRYPOINT not found" && return 3; fi
 
 if [ -z "$JENKINS_HOME" ]
 then
@@ -22,10 +12,14 @@ then
     cd $SOURCE_DIR
 else
     ### JENKINS
-    # APP_VERSION='revision_'$SVN_REVISION
+    APP_VERSION=$SVN_REVISION
     cd $WORKSPACE
 fi
 
+APP_NAME="${APP_NAME,,}"
+APP_VERSION="${APP_VERSION,,}"
+
+if [ ! -f "$SOURCE_DIR/$APP_ENTRYPOINT" ]; then echo "Entrypoint: $SOURCE_DIR/$APP_ENTRYPOINT not found" && return 3; fi
 if [ ! -x "$(command -v docker)" ]; then echo "Access https://docs.docker.com/engine/install/, and install docker first." && return 4; fi
 
 POSTFIX=$RANDOM
@@ -58,10 +52,21 @@ EOF
 TZ=$(cat /etc/timezone 2>/dev/null)
 TZ="${TZ:=Asia/Taipei}"
 
+cat <<EOF > requirements.$POSTFIX.txt
+schedule==1.0.0
+lineTool==1.0.3
+pandas==1.1.5
+sqlalchemy==1.4.0
+requests==2.22.0
+paho-mqtt==1.5.1
+getmac==0.8.2
+matplotlib
+EOF
+
 cat <<EOF > Dockerfile.$POSTFIX
 FROM python:$PYTHON_VERSION-slim
 USER root
-COPY $SOURCE_DIR/py2docker/requirements.txt /tmp
+COPY $SOURCE_DIR/requirements.$POSTFIX.txt /tmp/requirements.txt
 RUN apt-get update \
  && apt-get upgrade -yq --no-install-recommends ca-certificates \
  && apt-get clean \
@@ -74,16 +79,9 @@ ENV TZ "$TZ"
 ENTRYPOINT ["python", "$APP_ENTRYPOINT"]
 EOF
 
-APP_NAME="${APP_NAME,,}"
-APP_VERSION="${APP_VERSION,,}"
-
-sudo docker rmi $APP_NAME:$APP_VERSION
+sudo docker rmi $APP_NAME:$APP_VERSION 2>/dev/null
 sudo docker build -t $APP_NAME:$APP_VERSION --file ./Dockerfile.$POSTFIX .
-rm -rf Dockerfile.$POSTFIX
-rm -rf .dockerignore
+rm -rf "Dockerfile.$POSTFIX"
+rm -rf "requirements.$POSTFIX.txt"
+rm -rf ".dockerignore"
 if [ -f ".dockerignore.bak" ]; then mv -f .dockerignore.bak .dockerignore; fi
-}
-
-for conf in ./py2docker/*.conf; do
-    build $conf
-done
