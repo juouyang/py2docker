@@ -17,6 +17,7 @@ else
 fi
 
 APP_NAME="${APP_NAME,,}"
+APP_NAME="${APP_NAME// /_}"
 APP_VERSION="${APP_VERSION,,}"
 
 if [ ! -f "$SOURCE_DIR/$APP_ENTRYPOINT" ]; then echo "Entrypoint: $SOURCE_DIR/$APP_ENTRYPOINT not found" && return 3; fi
