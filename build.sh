@@ -24,7 +24,7 @@ if [ ! -f "$SOURCE_DIR/$APP_ENTRYPOINT" ]; then echo "Entrypoint: $SOURCE_DIR/$A
 if [ ! -x "$(command -v docker)" ]; then echo "Access https://docs.docker.com/engine/install/, and install docker first." && return 4; fi
 
 POSTFIX=$RANDOM
-if [ -f ".dockerignore" ]; then mv -f .dockerignore .dockerignore.bak; fi
+if [ -f ".dockerignore" ]; then mv -f .dockerignore .dockerignore.$POSTFIX.bak; fi
  cat <<EOF > .dockerignore
 **/.svn
 **/branches
@@ -85,8 +85,22 @@ sudo docker build -t $APP_NAME:$APP_VERSION --file ./Dockerfile.$POSTFIX .
 rm -rf "Dockerfile.$POSTFIX"
 rm -rf "requirements.$POSTFIX.txt"
 rm -rf ".dockerignore"
-if [ -f ".dockerignore.bak" ]; then mv -f .dockerignore.bak .dockerignore; fi
+if [ -f ".dockerignore.$POSTFIX.bak" ]; then mv -f .dockerignore.$POSTFIX.bak .dockerignore; fi
+
 if [ -z "$JENKINS_HOME" ]; then exit 0; fi
+
+# JENKINS post procedure: test run
+CONTAINER_NAME=testrun-$POSTFIX
+TEST_SEC=9
+sudo docker run --rm -d --name $CONTAINER_NAME $APP_NAME:$APP_VERSION
+sleep $TEST_SEC
+if [ "$(sudo docker ps -q -f name=$CONTAINER_NAME)" ]; then
+    echo "running for $TEST_SEC seconds"
+else
+    echo "stop before $TEST_SEC seconds"
+    exit 1
+fi
+sudo docker stop $CONTAINER_NAME
 
 # JENKINS post procedure: save docker image to nfs
 DEST_DIR=/media/nfs/jenkins/$JOB_NAME
