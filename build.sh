@@ -12,7 +12,7 @@ then
     cd $SOURCE_DIR
 else
     ### JENKINS
-    APP_VERSION=$SVN_REVISION
+    APP_VERSION="r_$SVN_REVISION"
     cd $WORKSPACE
 fi
 
@@ -94,7 +94,7 @@ DEST_DIR=/media/nfs/jenkins/$JOB_NAME
 sudo rm -rf $DEST_DIR/$APP_NAME/$APP_VERSION/$BUILD_TAG.tar.gz
 sudo mkdir -p $DEST_DIR/$APP_NAME/$APP_VERSION
 sudo chmod -R 777 $DEST_DIR/$APP_NAME/$APP_VERSION
-sudo docker save $APP_NAME:$APP_VERSION | gzip > $DEST_DIR/$APP_NAME/$APP_VERSION/$BUILD_TAG.tar.gz
+sudo docker save $APP_NAME:$APP_VERSION | gzip > $DEST_DIR/$APP_NAME/$APP_VERSION/$APP_NAME"_"$APP_VERSION"_"$(date +"%Y_%m_%d_%I_%M_%p").tar.gz
 
 # JENKINS post procedure: test run
 CONTAINER_NAME=testrun-$POSTFIX
