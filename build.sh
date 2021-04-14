@@ -93,6 +93,7 @@ if [ -z "$JENKINS_HOME" ]; then exit 0; fi
 DEST_DIR=/media/nfs/jenkins/$JOB_NAME
 sudo rm -rf $DEST_DIR/$APP_NAME/$APP_VERSION/$BUILD_TAG.tar.gz
 sudo mkdir -p $DEST_DIR/$APP_NAME/$APP_VERSION
+sudo chmod -R 777 $DEST_DIR/$APP_NAME/$APP_VERSION
 sudo docker save $APP_NAME:$APP_VERSION | gzip > $DEST_DIR/$APP_NAME/$APP_VERSION/$BUILD_TAG.tar.gz
 
 # JENKINS post procedure: test run
