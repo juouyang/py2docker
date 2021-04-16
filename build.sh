@@ -64,6 +64,10 @@ getmac==0.8.2
 matplotlib
 EOF
 
+if grep -R "shioaji"; then
+    echo "shioaji==0.3.1.dev8" >> requirements.$POSTFIX.txt
+fi
+
 cat <<EOF > Dockerfile.$POSTFIX
 FROM python:$PYTHON_VERSION-slim
 USER root
@@ -91,9 +95,9 @@ mkdir -p $(pwd)/log
 if [ -f "./reference/config" ];
 then
     sed -e "s/=\"/=/g" -e "s/\"$//g" -e "s/='/=/g" -e "s/'$//g" reference/config > env.docker
-    echo -n "docker run --rm -it -v $(pwd)/log/:/builds/app/log --env-file env.docker " $APP_NAME:$APP_VERSION > run.sh
+    echo -n "docker run --rm -it -v \$(pwd)/log/:/builds/app/log --env-file env.docker " $APP_NAME:$APP_VERSION > run.sh
 else
-    echo -n "docker run --rm -it -v $(pwd)/log/:/builds/app/log " $APP_NAME:$APP_VERSION > run.sh
+    echo -n "docker run --rm -it -v \$(pwd)/log/:/builds/app/log " $APP_NAME:$APP_VERSION > run.sh
 fi
 chmod +x run.sh
 
