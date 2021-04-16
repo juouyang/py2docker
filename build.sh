@@ -81,11 +81,21 @@ ENTRYPOINT ["python", "$APP_ENTRYPOINT"]
 EOF
 
 sudo docker rmi $APP_NAME:$APP_VERSION 2>/dev/null
-sudo docker build -t $APP_NAME:$APP_VERSION --file ./Dockerfile.$POSTFIX .
+sudo docker build -t $APP_NAME:$APP_VERSION --file ./Dockerfile.$POSTFIX . | sed -nr '/^Step|tagged/p'
 rm -rf "Dockerfile.$POSTFIX"
 rm -rf "requirements.$POSTFIX.txt"
 rm -rf ".dockerignore"
 if [ -f ".dockerignore.$POSTFIX.bak" ]; then mv -f .dockerignore.$POSTFIX.bak .dockerignore; fi
+
+mkdir -p $(pwd)/log
+if [ -f "./reference/Config.py" ];
+then
+    sed -e "s/=\"/=/g" -e "s/\"$//g" -e "s/='/=/g" -e "s/'$//g" reference/Config.py > env.docker
+    echo -n "docker run --rm -it -v $(pwd)/log/:/builds/app/log --env-file env.docker " $APP_NAME:$APP_VERSION > run.sh
+else
+    echo -n "docker run --rm -it -v $(pwd)/log/:/builds/app/log " $APP_NAME:$APP_VERSION > run.sh
+fi
+chmod +x run.sh
 
 if [ -z "$JENKINS_HOME" ]; then exit 0; fi
 
