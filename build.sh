@@ -88,9 +88,9 @@ rm -rf ".dockerignore"
 if [ -f ".dockerignore.$POSTFIX.bak" ]; then mv -f .dockerignore.$POSTFIX.bak .dockerignore; fi
 
 mkdir -p $(pwd)/log
-if [ -f "./reference/Config.py" ];
+if [ -f "./reference/config" ];
 then
-    sed -e "s/=\"/=/g" -e "s/\"$//g" -e "s/='/=/g" -e "s/'$//g" reference/Config.py > env.docker
+    sed -e "s/=\"/=/g" -e "s/\"$//g" -e "s/='/=/g" -e "s/'$//g" reference/config > env.docker
     echo -n "docker run --rm -it -v $(pwd)/log/:/builds/app/log --env-file env.docker " $APP_NAME:$APP_VERSION > run.sh
 else
     echo -n "docker run --rm -it -v $(pwd)/log/:/builds/app/log " $APP_NAME:$APP_VERSION > run.sh
