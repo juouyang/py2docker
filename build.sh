@@ -61,11 +61,18 @@ sqlalchemy==1.4.0
 requests==2.22.0
 paho-mqtt==1.5.1
 getmac==0.8.2
-matplotlib
 EOF
 
-if grep -R "shioaji"; then
+if grep -inr --include \*.py -R "matplotlib"; then
+    echo "matplotlib==3.4.1" >> requirements.$POSTFIX.txt
+fi
+
+if grep -inr --include \*.py -R "shioaji"; then
     echo "shioaji==0.3.1.dev8" >> requirements.$POSTFIX.txt
+fi
+
+if grep -inr --include \*.py -R "Crypto"; then
+    echo "pycryptodome==3.10.1" >> requirements.$POSTFIX.txt
 fi
 
 cat <<EOF > Dockerfile.$POSTFIX
