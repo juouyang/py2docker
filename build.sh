@@ -91,7 +91,7 @@ ENV TZ "$TZ"
 ENTRYPOINT ["python", "$APP_ENTRYPOINT"]
 EOF
 
-sudo docker rmi $APP_NAME:$APP_VERSION 2>/dev/null
+sudo docker rmi $APP_NAME:$APP_VERSION &> /dev/null
 sudo docker build -t $APP_NAME:$APP_VERSION --file ./Dockerfile.$POSTFIX . | sed -nr '/^Step|tagged/p'
 rm -rf "Dockerfile.$POSTFIX"
 rm -rf "requirements.$POSTFIX.txt"
