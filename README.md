@@ -8,7 +8,7 @@ Bash version 4.x+, docker, internet connection and `aicots template`
 
 in your aicots template folder, execute
    ```
-   curl https://raw.githubusercontent.com/juouyang-aicots/py2docker/main/build.sh | bash
+   curl -s https://raw.githubusercontent.com/juouyang-aicots/py2docker/main/build.sh | bash
    ```
 
 ### Run
