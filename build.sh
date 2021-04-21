@@ -1,4 +1,5 @@
 #!/bin/bash
+cd "${0%/*}"
 
 PYTHON_VERSION='3.8'
 APP_NAME=$(basename $(dirname "$PWD"))"/"$(ls -A1 *.py | grep -v __main__ | sed -e 's/\.py$//') # username/strategy_name
