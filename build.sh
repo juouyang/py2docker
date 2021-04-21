@@ -1,8 +1,8 @@
 #!/bin/bash
 
 PYTHON_VERSION='3.8'
-APP_NAME=$(ls -A1 *.py | grep -v __main__ | sed -e 's/\.py$//')
-APP_VERSION='next'
+APP_NAME=$(basename $(dirname "$PWD"))"/"$(ls -A1 *.py | grep -v __main__ | sed -e 's/\.py$//') # username/strategy_name
+APP_VERSION=$(basename "$PWD") # strategy ID
 APP_ENTRYPOINT="__main__.py"
 SOURCE_DIR='.'
 
