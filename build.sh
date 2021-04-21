@@ -20,8 +20,8 @@ APP_NAME="${APP_NAME,,}"
 APP_NAME="${APP_NAME// /_}"
 APP_VERSION="${APP_VERSION,,}"
 
-if [ ! -f "$SOURCE_DIR/$APP_ENTRYPOINT" ]; then echo "Entrypoint: $SOURCE_DIR/$APP_ENTRYPOINT not found" && exit 3; fi
-if [ ! -x "$(command -v docker)" ]; then echo "Access https://docs.docker.com/engine/install/, and install docker first." && exit 4; fi
+if [ ! -f "$SOURCE_DIR/$APP_ENTRYPOINT" ]; then echo "Entrypoint: $SOURCE_DIR/$APP_ENTRYPOINT not found" && exit 300; fi
+if [ ! -x "$(command -v docker)" ]; then echo "Access https://docs.docker.com/engine/install/, and install docker first." && exit 301; fi
 
 POSTFIX=$RANDOM
 if [ -f ".dockerignore" ]; then mv -f .dockerignore .dockerignore.$POSTFIX.bak; fi
@@ -93,6 +93,7 @@ EOF
 
 sudo docker rmi $APP_NAME:$APP_VERSION &> /dev/null
 sudo docker build -t $APP_NAME:$APP_VERSION --file ./Dockerfile.$POSTFIX . | sed -nr '/^Step|tagged/p'
+BUILD_RC=$?
 rm -rf "Dockerfile.$POSTFIX"
 rm -rf "requirements.$POSTFIX.txt"
 rm -rf ".dockerignore"
@@ -108,7 +109,7 @@ else
 fi
 chmod +x run.sh
 
-if [ -z "$JENKINS_HOME" ]; then exit 0; fi
+if [ -z "$JENKINS_HOME" ]; then exit $BUILD_RC; fi
 
 # JENKINS post procedure: save docker image to nfs
 DEST_DIR=/media/nfs/jenkins/$JOB_NAME
