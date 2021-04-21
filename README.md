@@ -1,7 +1,7 @@
 # Pack Python Project into Docker Image
 
 ## Prerequirements
-Bash version 4.x+, docker, internet connection and aicots template
+Bash version 4.x+, docker, internet connection and `aicots template`
 
   
 ### Build 
