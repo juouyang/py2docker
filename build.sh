@@ -24,6 +24,7 @@ SOURCE_DIR='.'
 
 if [ ! -z "$JENKINS_HOME" ]; then
     ### JENKINS
+    APP_NAME=$JOB_NAME"/"$STRATEGY_NAME
     APP_VERSION="r_$SVN_REVISION"
 fi
 
