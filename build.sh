@@ -141,8 +141,8 @@ if [ ! -z "$JENKINS_HOME" ]; then
 fi
 echo save docker image
 sudo rm -rf $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
-sudo mkdir -p $DEST_DIR/$DOCKER_REPOSITORY/
-sudo chmod -R 777 $DEST_DIR/$DOCKER_REPOSITORY
+sudo mkdir -p $DEST_DIR
+sudo chmod -R 777 $DEST_DIR
 sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG | gzip > $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
 
 exit $BUILD_RC
