@@ -14,6 +14,6 @@ in your aicots template folder, execute
 ### Run
 in your aicots template folder, execute
   ```bash
-   cd staging
+   cd .staging
    bash run.sh
    ```

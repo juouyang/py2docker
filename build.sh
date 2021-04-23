@@ -44,7 +44,7 @@ POSTFIX=$RANDOM
 
 if [ -f ".dockerignore" ]; then mv -f .dockerignore .dockerignore.$POSTFIX.bak; fi
 cat <<EOF > .dockerignore
-**/staging
+**/.staging
 **/log
 **/.svn
 **/branches
@@ -108,7 +108,7 @@ rm -rf "requirements.$POSTFIX.txt"
 rm -rf ".dockerignore"; if [ -f ".dockerignore.$POSTFIX.bak" ]; then mv -f .dockerignore.$POSTFIX.bak .dockerignore; fi
 
 
-STAGING_DIR="./staging"
+STAGING_DIR="./.staging"
 mkdir -p $STAGING_DIR"/log"
 chmod -R 777 $STAGING_DIR
 
@@ -123,7 +123,7 @@ fi
 
 # test run
 CONTAINER_NAME=testrun-$POSTFIX
-TEST_SEC=3
+TEST_SEC=9
 sudo docker run --rm -d --name $CONTAINER_NAME $DOCKER_REPOSITORY:$DOCKER_TAG
 sleep $TEST_SEC
 if [ "$(sudo docker ps -q -f name=$CONTAINER_NAME)" ]; then
