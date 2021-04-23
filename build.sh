@@ -121,26 +121,27 @@ fi
 
 
 # test run
-CONTAINER_NAME=testrun-$POSTFIX
+TESTRUN_NAME=testrun-$POSTFIX-$TIMESTAMP
 TEST_SEC=9
-sudo docker run --rm -d --name $CONTAINER_NAME $DOCKER_REPOSITORY:$DOCKER_TAG
+sudo docker run --rm -d --name $TESTRUN_NAME $DOCKER_REPOSITORY:$DOCKER_TAG
 sleep $TEST_SEC
-if [ "$(sudo docker ps -q -f name=$CONTAINER_NAME)" ]; then
+if [ "$(sudo docker ps -q -f name=$TESTRUN_NAME)" ]; then
     echo "running for $TEST_SEC seconds"
 else
     echo "stop before $TEST_SEC seconds"
-    exit 1
+    exit 302
 fi
-sudo docker stop $CONTAINER_NAME
+sudo docker stop $TESTRUN_NAME
 
-if [ ! -z "$JENKINS_HOME" ];
-then
-    # JENKINS post procedure: save docker image to nfs
+# save docker image to nfs
+DEST_DIR=$STAGING_DIR
+if [ ! -z "$JENKINS_HOME" ]; then
+    ### JENKINS
     DEST_DIR=/media/nfs/jenkins/$JOB_NAME
-    sudo rm -rf $DEST_DIR/$DOCKER_REPOSITORY/$DOCKER_TAG/$BUILD_TAG.tar.gz
-    sudo mkdir -p $DEST_DIR/$DOCKER_REPOSITORY/$DOCKER_TAG
-    sudo chmod -R 777 $DEST_DIR/$DOCKER_REPOSITORY/$DOCKER_TAG
-    sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG | gzip > $DEST_DIR/$DOCKER_REPOSITORY/$DOCKER_TAG/$DOCKER_REPOSITORY"_"$DOCKER_TAG.tar.gz
 fi
+sudo rm -rf $DEST_DIR/$DOCKER_REPOSITORY/$CONTAINER_NAME-$DOCKER_TAG.tar.gz
+sudo mkdir -p $DEST_DIR/$DOCKER_REPOSITORY/
+sudo chmod -R 777 $DEST_DIR/$DOCKER_REPOSITORY
+sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG | gzip > $DEST_DIR/$DOCKER_REPOSITORY/$CONTAINER_NAME-$DOCKER_TAG.tar.gz
 
 exit $BUILD_RC
