@@ -16,7 +16,7 @@ userID/strategyID/
 END
 #
 
-#STRATEGY_NAME=$(ls -A1 *.py | grep -v __main__ | sed -e 's/\.py$//') # Your_Strategy
+STRATEGY_NAME=$(ls -A1 *.py | grep -v __main__ | sed -e 's/\.py$//') # Your_Strategy
 APP_NAME=$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # userID/strategyID
 APP_VERSION=$TIMESTAMP
 APP_ENTRYPOINT="__main__.py"
@@ -140,9 +140,9 @@ if [ ! -z "$JENKINS_HOME" ]; then
     DEST_DIR=/media/nfs/jenkins/$JOB_NAME
 fi
 echo save docker image
-sudo rm -rf $DEST_DIR/$DOCKER_REPOSITORY/$CONTAINER_NAME-$DOCKER_TAG.tar.gz
+sudo rm -rf $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
 sudo mkdir -p $DEST_DIR/$DOCKER_REPOSITORY/
 sudo chmod -R 777 $DEST_DIR/$DOCKER_REPOSITORY
-sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG | gzip > $DEST_DIR/$DOCKER_REPOSITORY/$CONTAINER_NAME-$DOCKER_TAG.tar.gz
+sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG | gzip > $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
 
 exit $BUILD_RC
