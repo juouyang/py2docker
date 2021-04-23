@@ -44,6 +44,8 @@ POSTFIX=$RANDOM
 
 if [ -f ".dockerignore" ]; then mv -f .dockerignore .dockerignore.$POSTFIX.bak; fi
 cat <<EOF > .dockerignore
+**/staging
+**/log
 **/.svn
 **/branches
 **/tags
