@@ -10,7 +10,7 @@ userID/strategyID/
 ├── __main__.py
 ├── Your_Strategy.py
 ├── reference/
-└── staging
+└── .staging
     ├── log
     └── run.sh
 END
