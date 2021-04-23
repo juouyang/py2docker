@@ -3,8 +3,8 @@
 ## Prerequirements
 Bash version 4.x+, docker, internet connection and `aicots template`
 
-  
-### Build 
+
+### Build
 
 in your aicots template folder, execute
    ```
@@ -14,5 +14,6 @@ in your aicots template folder, execute
 ### Run
 in your aicots template folder, execute
   ```
+   cd staging
    bash run.sh
    ```
