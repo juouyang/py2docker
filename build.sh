@@ -133,12 +133,13 @@ else
 fi
 sudo docker stop $TESTRUN_NAME
 
-# save docker image to nfs
+# save docker image
 DEST_DIR=$STAGING_DIR
 if [ ! -z "$JENKINS_HOME" ]; then
     ### JENKINS
     DEST_DIR=/media/nfs/jenkins/$JOB_NAME
 fi
+echo save docker image
 sudo rm -rf $DEST_DIR/$DOCKER_REPOSITORY/$CONTAINER_NAME-$DOCKER_TAG.tar.gz
 sudo mkdir -p $DEST_DIR/$DOCKER_REPOSITORY/
 sudo chmod -R 777 $DEST_DIR/$DOCKER_REPOSITORY
