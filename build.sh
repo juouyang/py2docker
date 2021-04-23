@@ -121,19 +121,6 @@ else
 fi
 
 
-# test run
-TESTRUN_NAME=testrun-$POSTFIX-$TIMESTAMP
-TEST_SEC=9
-sudo docker run --rm -d --name $TESTRUN_NAME $DOCKER_REPOSITORY:$DOCKER_TAG
-sleep $TEST_SEC
-if [ "$(sudo docker ps -q -f name=$TESTRUN_NAME)" ]; then
-    echo "running for $TEST_SEC seconds"
-else
-    echo "stop before $TEST_SEC seconds"
-    exit 302
-fi
-sudo docker stop $TESTRUN_NAME
-
 # save docker image
 DEST_DIR=$STAGING_DIR
 if [ ! -z "$JENKINS_HOME" ]; then
@@ -145,5 +132,19 @@ sudo rm -rf $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
 sudo mkdir -p $DEST_DIR
 sudo chmod -R 777 $DEST_DIR
 time sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG | gzip > $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
+
+
+# test run to check if app can run for more than 9 seconds
+TESTRUN_NAME=testrun-$POSTFIX-$TIMESTAMP
+TEST_SEC=9
+sudo docker run --rm -d --name $TESTRUN_NAME $DOCKER_REPOSITORY:$DOCKER_TAG
+sleep $TEST_SEC
+if [ "$(sudo docker ps -q -f name=$TESTRUN_NAME)" ]; then
+    echo "running for $TEST_SEC seconds"
+else
+    echo "stop before $TEST_SEC seconds"
+    exit 302
+fi
+sudo docker stop $TESTRUN_NAME
 
 exit $BUILD_RC
