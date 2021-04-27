@@ -115,9 +115,9 @@ chmod -R 777 $STAGING_DIR
 if [ -f "./reference/config" ];
 then
     sed -e "s/=\"/=/g" -e "s/\"$//g" -e "s/='/=/g" -e "s/'$//g" reference/config > $STAGING_DIR"/env.docker"
-    echo -n "docker run --rm -it -v \$(pwd)/log/:/builds/app/log --name " $CONTAINER_NAME " --env-file env.docker " $DOCKER_REPOSITORY:$DOCKER_TAG > $STAGING_DIR"/run.sh"
+    echo -n "docker load < " $STRATEGY_NAME-$TIMESTAMP.tar.gz ";docker run --rm -it -v \$(pwd)/log/:/builds/app/log --name " $CONTAINER_NAME " --env-file env.docker " $DOCKER_REPOSITORY:$DOCKER_TAG > $STAGING_DIR"/run.sh"
 else
-    echo -n "docker run --rm -it -v \$(pwd)/log/:/builds/app/log --name " $CONTAINER_NAME $DOCKER_REPOSITORY:$DOCKER_TAG > $STAGING_DIR"/run.sh"
+    echo -n "docker load < " $STRATEGY_NAME-$TIMESTAMP.tar.gz ";docker run --rm -it -v \$(pwd)/log/:/builds/app/log --name " $CONTAINER_NAME $DOCKER_REPOSITORY:$DOCKER_TAG > $STAGING_DIR"/run.sh"
 fi
 
 
