@@ -143,8 +143,13 @@ if [ "$(sudo docker ps -q -f name=$TESTRUN_NAME)" ]; then
     echo "running for $TEST_SEC seconds"
 else
     echo "stop before $TEST_SEC seconds"
-    exit 302
+    BUILD_RC=302
 fi
 sudo docker stop $TESTRUN_NAME
+sudo docker rmi $DOCKER_REPOSITORY:$DOCKER_TAG
+
+#if [ "$BUILD_RC" -eq "0" ]; then
+    echo "Build complete with return code "$BUILD_RC
+#fi
 
 exit $BUILD_RC
