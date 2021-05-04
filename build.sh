@@ -115,12 +115,13 @@ chmod -R 777 $STAGING_DIR
 if [ -f "./TradeBot.py" ]; then
 
 mkdir -p $STAGING_DIR"/AccountPassword"
-touch $STAGING_DIR"/AccountPassword/Config.json"
 cat <<EOF > $STAGING_DIR"/run.sh"
 docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
 docker run --rm -it \
 -v \$(pwd)/log/:/builds/app/log \
 -v \$(pwd)/AccountPassword/Config.json:/builds/app/reference/Config.json \
+-v \$(pwd)/AccountPassword/private_key.pem:/builds/app/reference/private_key.pem \
+-v \$(pwd)/AccountPassword/Sinopac.pfx:/builds/app/reference/Sinopac.pfx \
 --name $CONTAINER_NAME \
 $DOCKER_REPOSITORY:$DOCKER_TAG
 EOF
