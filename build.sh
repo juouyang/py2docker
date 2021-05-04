@@ -112,15 +112,15 @@ STAGING_DIR="./.staging"
 mkdir -p $STAGING_DIR"/log"
 chmod -R 777 $STAGING_DIR
 
-if [ -f "./reference/Config.py" ]; then
+if [ -f "./TradeBot.py" ]; then
 
 mkdir -p $STAGING_DIR"/AccountPassword"
-cp ./reference/Config.py $STAGING_DIR"/AccountPassword/Config.py"
+touch $STAGING_DIR"/AccountPassword/Config.json"
 cat <<EOF > $STAGING_DIR"/run.sh"
 docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
 docker run --rm -it \
 -v \$(pwd)/log/:/builds/app/log \
--v \$(pwd)/AccountPassword/Config.py:/builds/app/reference/Config.py \
+-v \$(pwd)/AccountPassword/Config.json:/builds/app/reference/Config.json \
 --name $CONTAINER_NAME \
 $DOCKER_REPOSITORY:$DOCKER_TAG
 EOF
