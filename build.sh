@@ -112,12 +112,29 @@ STAGING_DIR="./.staging"
 mkdir -p $STAGING_DIR"/log"
 chmod -R 777 $STAGING_DIR
 
-if [ -f "./reference/config" ];
-then
-    sed -e "s/=\"/=/g" -e "s/\"$//g" -e "s/='/=/g" -e "s/'$//g" reference/config > $STAGING_DIR"/env.docker"
-    echo -n "docker load < " $STRATEGY_NAME-$TIMESTAMP.tar.gz ";docker run --rm -it -v \$(pwd)/log/:/builds/app/log --name " $CONTAINER_NAME " --env-file env.docker " $DOCKER_REPOSITORY:$DOCKER_TAG > $STAGING_DIR"/run.sh"
+if [ -f "./reference/Config.py" ]; then
+
+mkdir -p $STAGING_DIR"/AccountPassword"
+cp ./reference/Config.py $STAGING_DIR"/AccountPassword/Config.py"
+cat <<EOF > $STAGING_DIR"/run.sh"
+docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
+docker run --rm -it \
+-v \$(pwd)/log/:/builds/app/log \
+-v \$(pwd)/AccountPassword/Config.py:/builds/app/reference/Config.py \
+--name $CONTAINER_NAME \
+$DOCKER_REPOSITORY:$DOCKER_TAG
+EOF
+
 else
-    echo -n "docker load < " $STRATEGY_NAME-$TIMESTAMP.tar.gz ";docker run --rm -it -v \$(pwd)/log/:/builds/app/log --name " $CONTAINER_NAME $DOCKER_REPOSITORY:$DOCKER_TAG > $STAGING_DIR"/run.sh"
+
+cat <<EOF > $STAGING_DIR"/run.sh"
+docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
+docker run --rm -it \
+-v \$(pwd)/log/:/builds/app/log \
+--name $CONTAINER_NAME \
+$DOCKER_REPOSITORY:$DOCKER_TAG
+EOF
+
 fi
 
 
