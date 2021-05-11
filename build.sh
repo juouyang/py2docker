@@ -11,7 +11,7 @@ userID/strategyID/
 ├── Your_Strategy.py
 ├── reference/
 └── .staging
-    ├── log
+    ├── logs
     └── run.sh
 END
 #
@@ -46,6 +46,7 @@ if [ -f ".dockerignore" ]; then mv -f .dockerignore .dockerignore.$POSTFIX.bak; 
 cat <<EOF > .dockerignore
 **/.staging
 **/log
+**/logs
 **/.svn
 **/branches
 **/tags
@@ -109,7 +110,7 @@ rm -rf ".dockerignore"; if [ -f ".dockerignore.$POSTFIX.bak" ]; then mv -f .dock
 
 
 STAGING_DIR="./.staging"
-mkdir -p $STAGING_DIR"/log"
+mkdir -p $STAGING_DIR"/logs"
 chmod -R 777 $STAGING_DIR
 
 if [ -f "./TradeBot.py" ]; then
@@ -118,7 +119,7 @@ mkdir -p $STAGING_DIR"/AccountPassword"
 cat <<EOF > $STAGING_DIR"/run.sh"
 docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
 docker run --rm -it \
--v \$(pwd)/log/:/builds/app/log \
+-v \$(pwd)/logs/:/builds/app/logs \
 -v \$(pwd)/AccountPassword/Config.json:/builds/app/reference/Config.json \
 -v \$(pwd)/AccountPassword/private_key.pem:/builds/app/reference/private_key.pem \
 -v \$(pwd)/AccountPassword/Sinopac.pfx:/builds/app/reference/Sinopac.pfx \
@@ -131,7 +132,7 @@ else
 cat <<EOF > $STAGING_DIR"/run.sh"
 docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
 docker run --rm -it \
--v \$(pwd)/log/:/builds/app/log \
+-v \$(pwd)/logs/:/builds/app/logs \
 --name $CONTAINER_NAME \
 $DOCKER_REPOSITORY:$DOCKER_TAG
 EOF
