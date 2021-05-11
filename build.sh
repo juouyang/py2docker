@@ -119,6 +119,8 @@ mkdir -p $STAGING_DIR"/AccountPassword"
 cat <<EOF > $STAGING_DIR"/run.sh"
 docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
 docker run --rm -it \
+-e MQTT_IP=192.168.233.134 \
+-e MQTT_PORT=1883 \
 -v \$(pwd)/logs/:/builds/app/logs \
 -v \$(pwd)/AccountPassword/Config.json:/builds/app/reference/Config.json \
 -v \$(pwd)/AccountPassword/private_key.pem:/builds/app/reference/private_key.pem \
@@ -132,6 +134,8 @@ else
 cat <<EOF > $STAGING_DIR"/run.sh"
 docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
 docker run --rm -it \
+-e MQTT_IP=192.168.233.134 \
+-e MQTT_PORT=1883 \
 -v \$(pwd)/logs/:/builds/app/logs \
 --name $CONTAINER_NAME \
 $DOCKER_REPOSITORY:$DOCKER_TAG
