@@ -94,7 +94,17 @@ do
   sleep 60
 done
 EOF
-else
+elif [ -f "./TradeBot.py" ]; then
+cat <<EOF > my_wrapper_script.sh
+#!/bin/bash
+while true
+do
+  python $APP_ENTRYPOINT
+  echo "will restart TradeBot in 3 sec ..."
+  sleep 3
+done
+EOF
+else # strategy template
 cat <<EOF > my_wrapper_script.sh
 #!/bin/bash
 python $APP_ENTRYPOINT
@@ -153,6 +163,7 @@ fi
 EOF
 if [ -f "./TradeBot.py" ]; then
 mkdir -p $STAGING_DIR"/AccountPassword"
+cp -rf /root/builds/AccountPassword/* $STAGING_DIR"/AccountPassword"
 cat <<EOF >> $STAGING_DIR"/run.sh"
 docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
 docker run --rm -it \
