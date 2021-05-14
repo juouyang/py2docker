@@ -1,15 +1,12 @@
 #!/bin/bash
-
 TIMESTAMP=$(date +"%Y%m%d%H%M%S.%3N")
 POSTFIX=$RANDOM
-
 PYTHON_VERSION='3.8'
 STRATEGY_NAME=$(basename "$PWD")
 
 # check entrypoint
 if [ -f "__main__.py" ] && [ "$(ls -la *.py | grep -v __main__.py | wc -l)" == "1"  ]; then
-  # strategy template
-  APP_ENTRYPOINT="__main__.py"
+  APP_ENTRYPOINT="__main__.py" # strategy template
 elif [ -f "__main__.py" ]; then
   APP_ENTRYPOINT="__main__.py"
 else
@@ -106,7 +103,7 @@ fi
 chmod +x my_wrapper_script.sh
 
 # generate Dockerfile
-TZ="${TZ:=UTC}"
+TZ="${TZ:=Asia/Taipei}"
 cat <<EOF > Dockerfile.$POSTFIX
 FROM python:$PYTHON_VERSION-slim
 USER root
@@ -125,21 +122,22 @@ EOF
 sudo docker rmi $DOCKER_REPOSITORY:$DOCKER_TAG &> /dev/null
 sudo docker build -t $DOCKER_REPOSITORY:$DOCKER_TAG --file ./Dockerfile.$POSTFIX . | sed -nr '/^Step|tagged/p'
 BUILD_RC=$?
+rm -rf "my_wrapper_script.sh"
 rm -rf "Dockerfile.$POSTFIX"
 rm -rf "requirements.$POSTFIX.txt"
 rm -rf ".dockerignore"; if [ -f ".dockerignore.$POSTFIX.bak" ]; then mv -f .dockerignore.$POSTFIX.bak .dockerignore; fi
 
 # generate staging folder
 STAGING_DIR="./.staging"
-mkdir -p $STAGING_DIR"/log"
-chmod -R 777 $STAGING_DIR
-
-# generate run.sh
 if [ $(grep -inr --include \*.py -R "'logs'" | wc -l) -ne 0 ]; then
-  LOG_DIR="logs";
+  LOG_DIR="logs"
 else
   LOG_DIR="log"
 fi
+mkdir -p $STAGING_DIR"/"$LOG_DIR
+chmod -R 777 $STAGING_DIR
+
+# generate run.sh
 cat <<EOF > $STAGING_DIR"/run.sh"
 if [ \$(ip addr | grep 192.168.233 | wc -l) -ne 0 ]; then
   MQTT_IP=192.168.233.134
@@ -210,7 +208,8 @@ echo saving docker image ...
 sudo rm -rf $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
 sudo mkdir -p $DEST_DIR
 sudo chmod -R 777 $DEST_DIR
-time sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG | gzip > $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
+sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG > $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
+echo docker image saved with RC=$?
 
 # test run to check if app can run for more than 9 seconds
 TESTRUN_NAME=testrun-$POSTFIX-$TIMESTAMP
@@ -218,13 +217,17 @@ TEST_SEC=9
 sudo docker run --rm -d --name $TESTRUN_NAME $DOCKER_REPOSITORY:$DOCKER_TAG
 sleep $TEST_SEC
 if [ "$(sudo docker ps -q -f name=$TESTRUN_NAME)" ]; then
-    echo "running for $TEST_SEC seconds"
+  echo "========="
+  sudo docker logs $TESTRUN_NAME
+  echo "========="
+  echo "running for $TEST_SEC seconds"
 else
-    echo "stop before $TEST_SEC seconds"
-    BUILD_RC=302
+  sudo docker logs $TESTRUN_NAME
+  echo "stop before $TEST_SEC seconds"
+  BUILD_RC=302
 fi
 sudo docker stop $TESTRUN_NAME
-sudo docker rmi $DOCKER_REPOSITORY:$DOCKER_TAG
+sudo docker rmi $DOCKER_REPOSITORY:$DOCKER_TAG &> /dev/null
 
 echo "Build complete with return code "$BUILD_RC
 exit $BUILD_RC
