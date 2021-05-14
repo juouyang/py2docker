@@ -165,7 +165,7 @@ if [ -f "./TradeBot.py" ]; then
 mkdir -p $STAGING_DIR"/AccountPassword"
 cp -rf /root/builds/AccountPassword/* $STAGING_DIR"/AccountPassword"
 cat <<EOF >> $STAGING_DIR"/run.sh"
-docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
+docker load < "$STRATEGY_NAME-$TIMESTAMP.tar"
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
@@ -178,7 +178,7 @@ docker run --rm -it \
 EOF
 elif [ -f "./ValleyExpressSelect.py" ]; then
 cat <<EOF >> $STAGING_DIR"/run.sh"
-docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
+docker load < "$STRATEGY_NAME-$TIMESTAMP.tar"
 docker volume rm rep
 docker volume create \
   --driver local \
@@ -197,7 +197,7 @@ docker run --rm -it \
 EOF
 else # strategy
 cat <<EOF >> $STAGING_DIR"/run.sh"
-docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
+docker load < "$STRATEGY_NAME-$TIMESTAMP.tar"
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
@@ -216,10 +216,10 @@ else
   DEST_DIR=$STAGING_DIR
 fi
 echo saving docker image ...
-sudo rm -rf $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
+sudo rm -rf $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
 sudo mkdir -p $DEST_DIR
 sudo chmod -R 777 $DEST_DIR
-sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG > $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
+sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG > $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
 echo docker image saved with RC=$?
 
 # test run to check if app can run for more than 9 seconds
