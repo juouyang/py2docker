@@ -10,8 +10,8 @@ if [ -f "__main__.py" ] && [ "$(ls -la *.py | grep -v __main__.py | wc -l)" == "
 elif [ -f "__main__.py" ]; then
   APP_ENTRYPOINT="__main__.py"
 else
-  echo -n "Input filename.py of entrypoint: "
-  read APP_ENTRYPOINT
+  #echo -n "Input filename.py of entrypoint: "
+  #read APP_ENTRYPOINT
   APP_ENTRYPOINT="${APP_ENTRYPOINT:=ValleyExpressSelect.py}"
 fi
 if [ ! -f "$APP_ENTRYPOINT" ]; then echo "Entrypoint: $APP_ENTRYPOINT not found" && exit 300; fi
