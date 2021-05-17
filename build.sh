@@ -160,8 +160,8 @@ elif [ \$(ip addr | grep 192.168.238 | wc -l) -ne 0 ]; then
   VOLUME_DEVICE="//192.168.238.100/rep"
   VOLUME_OPT_O="username=jetson_nano,password=jn@123456"
 fi
-MQTT_IP="${MQTT_IP:=192.168.238.100}"
-MQTT_PORT="${MQTT_PORT:=5883}"
+MQTT_IP="\${MQTT_IP:=192.168.238.100}"
+MQTT_PORT="\${MQTT_PORT:=5883}"
 EOF
 if [ -f "./TradeBot.py" ]; then
 mkdir -p $STAGING_DIR"/AccountPassword"
