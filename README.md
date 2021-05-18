@@ -15,7 +15,7 @@ userID/strategyID/
 ```
 
 
-### Build
+### Pack
 
 in your aicots strategy folder, execute
    ```bash
