@@ -76,7 +76,7 @@ cat <<EOF > my_wrapper_script.sh
 python $APP_ENTRYPOINT
 while true
 do
-  currentTime=\$(TZ=":Asai/Taipei" date +"%H%M")
+  currentTime=\$(TZ=":Asia/Taipei" date +"%H%M")
   echo -n .
   if [ "\$currentTime" == "0600" ]; then
     echo "Triggered at "\$currentTime
