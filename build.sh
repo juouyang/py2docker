@@ -98,16 +98,6 @@ do
   sleep 60
 done
 EOF
-elif [ -f "./TradeBot.py" ]; then
-cat <<EOF > my_wrapper_script.sh
-#!/bin/bash
-while true
-do
-  python $APP_ENTRYPOINT
-  echo "will restart TradeBot in 3 sec ..."
-  sleep 3
-done
-EOF
 else # strategy template
 cat <<EOF > my_wrapper_script.sh
 #!/bin/bash
