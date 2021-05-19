@@ -165,7 +165,7 @@ MQTT_PORT="\${MQTT_PORT:=5883}"
 EOF
 if [ -f "./TradeBot.py" ]; then
 mkdir -p $STAGING_DIR"/AccountPassword"
-cp -rf /root/builds/AccountPassword/* $STAGING_DIR"/AccountPassword"
+cp -rf ../AccountPassword/* $STAGING_DIR"/AccountPassword"
 cat <<EOF >> $STAGING_DIR"/run.sh"
 docker load < "$STRATEGY_NAME-$TIMESTAMP.tar"
 docker run --rm -it \
