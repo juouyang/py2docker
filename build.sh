@@ -16,6 +16,9 @@ else
 fi
 if [ ! -f "$APP_ENTRYPOINT" ]; then echo "Entrypoint: $APP_ENTRYPOINT not found" && exit 300; fi
 
+# check password
+if [ -f "./TradeBot.py" ] && [ "$(ls -A1 ../AccountPassword* | wc -l)" != "3"  ]; then echo "Cannot find AccountPassword for TradeBot"; exit 1; fi
+
 # check docker
 if [ ! -x "$(command -v docker)" ]; then echo "Access https://docs.docker.com/engine/install/, and install docker first." && exit 301; fi
 DOCKER_REPOSITORY=$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # userID/strategyID
@@ -56,7 +59,8 @@ docker-compose*
 EOF
 
 # generate requirements.txt
-cat <<EOF > requirements.$POSTFIX.txt
+if [ -f "requirements.txt" ]; then mv -f requirements.txt requirements.txt.$POSTFIX.bak; fi
+cat <<EOF > requirements.txt
 schedule==1.0.0
 lineTool==1.0.3
 pandas==1.1.5
@@ -65,9 +69,9 @@ requests==2.22.0
 paho-mqtt==1.5.1
 getmac==0.8.2
 EOF
-if [ $(grep -inr --include \*.py -R "matplotlib" | wc -l) -ne 0 ]; then echo "matplotlib==3.4.1" >> requirements.$POSTFIX.txt; fi
-if [ $(grep -inr --include \*.py -R "shioaji" | wc -l) -ne 0 ]; then echo "shioaji==0.3.1.dev8" >> requirements.$POSTFIX.txt; fi
-if [ $(grep -inr --include \*.py -R "Crypto" | wc -l) -ne 0 ]; then echo "pycryptodome==3.10.1" >> requirements.$POSTFIX.txt; fi
+if [ $(grep -inr --include \*.py -R "matplotlib" | wc -l) -ne 0 ]; then echo "matplotlib==3.4.1" >> requirements.txt; fi
+if [ $(grep -inr --include \*.py -R "shioaji" | wc -l) -ne 0 ]; then echo "shioaji==0.3.1.dev8" >> requirements.txt; fi
+if [ $(grep -inr --include \*.py -R "Crypto" | wc -l) -ne 0 ]; then echo "pycryptodome==3.10.1" >> requirements.txt; fi
 
 # generate wrapper_script.sh
 if [ $APP_ENTRYPOINT = "ValleyExpressSelect.py" ]; then
@@ -117,7 +121,7 @@ TZ="${TZ:=Asia/Taipei}"
 cat <<EOF > Dockerfile.$POSTFIX
 FROM python:$PYTHON_VERSION-slim
 USER root
-COPY requirements.$POSTFIX.txt /tmp/requirements.txt
+COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt \
  && mkdir -p /builds/app
 COPY ./ /builds/app/
@@ -134,7 +138,7 @@ sudo docker build -t $DOCKER_REPOSITORY:$DOCKER_TAG --file ./Dockerfile.$POSTFIX
 BUILD_RC=$?
 rm -rf "my_wrapper_script.sh"
 rm -rf "Dockerfile.$POSTFIX"
-rm -rf "requirements.$POSTFIX.txt"
+rm -rf "requirements.txt"; if [ -f "requirements.txt.$POSTFIX.bak" ]; then mv -f requirements.txt.$POSTFIX.bak requirements.txt; fi
 rm -rf ".dockerignore"; if [ -f ".dockerignore.$POSTFIX.bak" ]; then mv -f .dockerignore.$POSTFIX.bak .dockerignore; fi
 
 # generate staging folder
@@ -167,10 +171,30 @@ if [ -f "./TradeBot.py" ]; then
 mkdir -p $STAGING_DIR"/AccountPassword"
 cp -rf ../AccountPassword/* $STAGING_DIR"/AccountPassword"
 cat <<EOF >> $STAGING_DIR"/run.sh"
+PS3='Please enter AccountType: '
+options=("futures" "stock")
+select opt in "\${options[@]}"
+do
+  case \$opt in
+    "futures")
+      echo "you chose choice \$REPLY which is \$opt"
+      break
+      ;;
+    "stock")
+      echo "you chose choice \$REPLY which is \$opt"
+      break
+      ;;
+    *)
+      echo "invalid option \$REPLY"
+      exit 1
+      ;;
+  esac
+done
 docker load < "$STRATEGY_NAME-$TIMESTAMP.tar"
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
+  -e AccountType=\$opt \
   -v \$(pwd)/$LOG_DIR/:/builds/app/$LOG_DIR \
   -v \$(pwd)/AccountPassword/Config.json:/builds/app/reference/Config.json \
   -v \$(pwd)/AccountPassword/private_key.pem:/builds/app/reference/private_key.pem \
