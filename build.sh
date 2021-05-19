@@ -189,7 +189,7 @@ docker run --rm -it \
   -v \$(pwd)/AccountPassword/Config.json:/builds/app/reference/Config.json \
   -v \$(pwd)/AccountPassword/private_key.pem:/builds/app/reference/private_key.pem \
   -v \$(pwd)/AccountPassword/Sinopac.pfx:/builds/app/reference/Sinopac.pfx \
-  --name $CONTAINER_NAME \
+  --name $CONTAINER_NAME-\$opt \
   $DOCKER_REPOSITORY:$DOCKER_TAG
 EOF
 elif [ -f "./ValleyExpressSelect.py" ]; then
