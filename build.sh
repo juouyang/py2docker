@@ -224,23 +224,5 @@ sudo chmod -R 777 $DEST_DIR
 sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG > $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
 echo docker image saved with RC=$?
 
-# test run to check if app can run for more than 9 seconds
-TESTRUN_NAME=testrun-$POSTFIX-$TIMESTAMP
-TEST_SEC=9
-sudo docker run --rm -d --name $TESTRUN_NAME $DOCKER_REPOSITORY:$DOCKER_TAG
-sleep $TEST_SEC
-if [ "$(sudo docker ps -q -f name=$TESTRUN_NAME)" ]; then
-  echo "========="
-  sudo docker logs $TESTRUN_NAME
-  echo "========="
-  echo "running for $TEST_SEC seconds"
-else
-  sudo docker logs $TESTRUN_NAME
-  echo "stop before $TEST_SEC seconds"
-  BUILD_RC=302
-fi
-sudo docker stop $TESTRUN_NAME
-sudo docker rmi $DOCKER_REPOSITORY:$DOCKER_TAG &> /dev/null
-
 echo "Build complete with return code "$BUILD_RC
 exit $BUILD_RC
