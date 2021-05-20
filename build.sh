@@ -82,8 +82,8 @@ while true
 do
   currentTime=\$(TZ=":Asia/Taipei" date +"%H%M")
   echo -n .
-  if [ "\$currentTime" == "0600" ]; then
-    echo "Triggered at "\$currentTime
+  if [ "\$currentTime" == "0810" ]; then
+    echo "Trigger $APP_ENTRYPOINT at "\$(TZ=":Asia/Taipei" date)
     RC=1
     while [ \$RC -ne 0 ]
     do
