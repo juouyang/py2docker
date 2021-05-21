@@ -68,6 +68,7 @@ sqlalchemy==1.4.0
 requests==2.22.0
 paho-mqtt==1.5.1
 getmac==0.8.2
+wget
 EOF
 if [ $(grep -inr --include \*.py -R "matplotlib" | wc -l) -ne 0 ]; then echo "matplotlib==3.4.1" >> requirements.txt; fi
 if [ $(grep -inr --include \*.py -R "shioaji" | wc -l) -ne 0 ]; then echo "shioaji==0.3.1.dev8" >> requirements.txt; fi
@@ -121,6 +122,13 @@ COPY my_wrapper_script.sh my_wrapper_script.sh
 CMD bash
 ENTRYPOINT ./my_wrapper_script.sh
 EOF
+if [ $(grep -inr --include \*.py -R "from mqtt_client import Client" | wc -l) -ne 0 ]; then
+# install mqtt_client, custom package of Doquant
+cat <<EOF >> Dockerfile.$POSTFIX
+RUN python -m wget https://github.com/juouyang-aicots/py2docker/raw/main/mqtt_client-ba00a472.tar -o /tmp/mqtt_client.tar \
+  && tar -xf /tmp/mqtt_client.tar -C /usr/local/lib/python3.8/site-packages/
+EOF
+fi
 
 # docker build
 sudo docker rmi $DOCKER_REPOSITORY:$DOCKER_TAG &> /dev/null
