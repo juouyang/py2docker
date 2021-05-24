@@ -24,17 +24,18 @@ if [ -f "./TradeBot.py" ] && [ "$(ls -A1 ../AccountPassword* | wc -l)" != "3"  ]
 # check docker
 if [ ! -x "$(command -v docker)" ]; then echo "Access https://docs.docker.com/engine/install/, and install docker first." && exit 301; fi
 if [ ! -z "$JENKINS_HOME" ]; then
-  ### JENKINS
-  DOCKER_REPOSITORY=$(tr \' \/ <<< "$JOB_NAME") # JOB_NAME = userID'strategyID
+  ### JENKINS, JOB_NAME=userID'strategyID
+  DOCKER_REPOSITORY=$(tr \' \/ <<< "$JOB_NAME") # DOCKER_REPOSITORY=userID/strategyID
+  CONTAINER_NAME=$(tr \' - <<< "$JOB_NAME") # CONTAINER_NAME=userID-strategyID
 else
-  DOCKER_REPOSITORY=$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # folder structure = userID/strategyID
+  DOCKER_REPOSITORY=$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # DOCKER_REPOSITORY=userID/strategyID
+  CONTAINER_NAME=$(basename $(dirname "$PWD"))"-"$(basename "$PWD") # CONTAINER_NAME=userID-strategyID
 fi
 DOCKER_REPOSITORY=$DOCKER_REPOSITORY
 DOCKER_REPOSITORY="${DOCKER_REPOSITORY,,}"
 DOCKER_REPOSITORY="${DOCKER_REPOSITORY// /_}"
 DOCKER_TAG=$TIMESTAMP
 DOCKER_TAG="${DOCKER_TAG,,}"
-CONTAINER_NAME=$(basename $(dirname "$PWD"))"-"$(basename "$PWD") # userID-strategyID
 
 # generate .dockerignore
 if [ -f ".dockerignore" ]; then mv -f .dockerignore .dockerignore.$POSTFIX.bak; fi
