@@ -1,4 +1,6 @@
 #!/bin/bash
+SUDO=''
+if (( $EUID != 0 )); then SUDO='sudo'; fi
 TIMESTAMP=$(date +"%Y%m%d%H%M%S.%3N")
 POSTFIX=$RANDOM
 PYTHON_VERSION='3.8'
@@ -136,8 +138,8 @@ EOF
 fi
 
 # docker build
-sudo docker rmi $DOCKER_REPOSITORY:$DOCKER_TAG &> /dev/null
-sudo docker build -t $DOCKER_REPOSITORY:$DOCKER_TAG --file ./Dockerfile.$POSTFIX . | sed -nr '/^Step|tagged/p'
+$SUDO docker rmi $DOCKER_REPOSITORY:$DOCKER_TAG &> /dev/null
+$SUDO docker build -t $DOCKER_REPOSITORY:$DOCKER_TAG --file ./Dockerfile.$POSTFIX . | sed -nr '/^Step|tagged/p'
 BUILD_RC=$?
 rm -rf "my_wrapper_script.sh"
 rm -rf "Dockerfile.$POSTFIX"
@@ -245,10 +247,10 @@ else
   DEST_DIR=$STAGING_DIR
 fi
 echo saving docker image ...
-sudo rm -rf $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
-sudo mkdir -p $DEST_DIR
-sudo chmod -R 777 $DEST_DIR
-sudo docker save $DOCKER_REPOSITORY:$DOCKER_TAG > $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
+$SUDO rm -rf $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
+$SUDO mkdir -p $DEST_DIR
+$SUDO chmod -R 777 $DEST_DIR
+$SUDO docker save $DOCKER_REPOSITORY:$DOCKER_TAG > $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
 echo docker image saved with RC=$?
 
 echo "Build complete with return code "$BUILD_RC
