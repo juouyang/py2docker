@@ -254,5 +254,9 @@ $SUDO chmod -R 777 $DOCKER_SAVE_DIR
 $SUDO docker save $DOCKER_REPOSITORY:$DOCKER_TAG > $DOCKER_SAVE_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
 echo docker image saved with RC=$?
 
+# cleanup images
+echo cleanup docker images ...
+$SUDO docker images --format='{{.Repository}}:{{.Tag}}' --filter=reference=$DOCKER_REPOSITORY'*:*' | xargs -r $SUDO docker rmi &> /dev/null
+
 echo "Build complete with return code "$BUILD_RC
 exit $BUILD_RC
