@@ -21,7 +21,12 @@ if [ -f "./TradeBot.py" ] && [ "$(ls -A1 ../AccountPassword* | wc -l)" != "3"  ]
 
 # check docker
 if [ ! -x "$(command -v docker)" ]; then echo "Access https://docs.docker.com/engine/install/, and install docker first." && exit 301; fi
-DOCKER_REPOSITORY=$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # userID/strategyID
+if [ ! -z "$JENKINS_HOME" ]; then
+  ### JENKINS
+  DOCKER_REPOSITORY=$(tr \' \/ <<< "$JOB_NAME") # JOB_NAME = userID'strategyID
+else
+  DOCKER_REPOSITORY=$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # folder structure = userID/strategyID
+fi
 DOCKER_REPOSITORY=$DOCKER_REPOSITORY
 DOCKER_REPOSITORY="${DOCKER_REPOSITORY,,}"
 DOCKER_REPOSITORY="${DOCKER_REPOSITORY// /_}"
