@@ -147,7 +147,14 @@ rm -rf "requirements.txt"; if [ -f "requirements.txt.$POSTFIX.bak" ]; then mv -f
 rm -rf ".dockerignore"; if [ -f ".dockerignore.$POSTFIX.bak" ]; then mv -f .dockerignore.$POSTFIX.bak .dockerignore; fi
 
 # generate staging folder
-STAGING_DIR="./.staging"
+if [ ! -z "$JENKINS_HOME" ]; then
+  ### JENKINS
+  STAGING_DIR=/media/nfs/jenkins/$JOB_NAME
+  DOCKER_SAVE_DIR=/media/nfs/jenkins/$JOB_NAME
+else
+  STAGING_DIR="./.staging"
+  DOCKER_SAVE_DIR=$STAGING_DIR
+fi
 if [ $(grep -inr --include \*.py -R "'logs'" | wc -l) -ne 0 ]; then
   LOG_DIR="logs"
 else
@@ -240,17 +247,11 @@ EOF
 fi
 
 # save docker image
-if [ ! -z "$JENKINS_HOME" ]; then
-  ### JENKINS
-  DEST_DIR=/media/nfs/jenkins/$JOB_NAME
-else
-  DEST_DIR=$STAGING_DIR
-fi
 echo saving docker image ...
-$SUDO rm -rf $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
-$SUDO mkdir -p $DEST_DIR
-$SUDO chmod -R 777 $DEST_DIR
-$SUDO docker save $DOCKER_REPOSITORY:$DOCKER_TAG > $DEST_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
+$SUDO rm -rf $DOCKER_SAVE_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
+$SUDO mkdir -p $DOCKER_SAVE_DIR
+$SUDO chmod -R 777 $DOCKER_SAVE_DIR
+$SUDO docker save $DOCKER_REPOSITORY:$DOCKER_TAG > $DOCKER_SAVE_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
 echo docker image saved with RC=$?
 
 echo "Build complete with return code "$BUILD_RC
