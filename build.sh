@@ -23,14 +23,22 @@ if [ -f "./TradeBot.py" ] && [ "$(ls -A1 ../AccountPassword* | wc -l)" != "3"  ]
 # check docker
 if [ ! -x "$(command -v docker)" ]; then echo "Access https://docs.docker.com/engine/install/, and install docker first." && exit 301; fi
 if [ ! -z "$JENKINS_HOME" ]; then
-  ### JENKINS, JOB_NAME=userID'strategyID
-  DOCKER_REPOSITORY=$(tr \' \/ <<< "$JOB_NAME") # DOCKER_REPOSITORY=userID/strategyID
-  CONTAINER_NAME=$(tr \' - <<< "$JOB_NAME") # CONTAINER_NAME=userID-strategyID
-  STRATEGY_NAME=$(tr "'" "\n" <<< $JOB_NAME | sed -n '2p') #STRATEGY_NAME=strategyID
+  ### JENKINS, JOB_NAME="groupName'userID'projectID"
+  USER_ID=$(tr "'" "\n" <<< $JOB_NAME | sed -n '2p')
+  PROJECT_ID=$(tr "'" "\n" <<< $JOB_NAME | sed -n '3p')
+  DOCKER_REPOSITORY=$(tr \' \/ <<< $JOB_NAME) # groupName/userID/projectID
+  CONTAINER_NAME=$USER_ID"-"$PROJECT_ID # CONTAINER_NAME=userID-strategyID
+  STAGING_DIR=/media/nfs/jenkins/$DOCKER_REPOSITORY/$DOCKER_TAG
+  SAVED_DOCKER_IMAGE_FILE_NAME=$CONTAINER_NAME"-"$TIMESTAMP"_"$GIT_COMMIT".tar.gz"
 else
-  DOCKER_REPOSITORY=$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # DOCKER_REPOSITORY=userID/strategyID
+  ### groupName/
+  ### └── userID
+  ###   └── projectID
+  # PROJECT_ID=$(basename "$PWD")
+  DOCKER_REPOSITORY=$(basename $(dirname $(dirname "$PWD")))"/"$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # groupName/userID/strategyID
   CONTAINER_NAME=$(basename $(dirname "$PWD"))"-"$(basename "$PWD") # CONTAINER_NAME=userID-strategyID
-  STRATEGY_NAME=$(basename "$PWD")
+  STAGING_DIR="./.staging"
+  SAVED_DOCKER_IMAGE_FILE_NAME=$CONTAINER_NAME"-"$TIMESTAMP".tar.gz"
 fi
 DOCKER_REPOSITORY=$DOCKER_REPOSITORY
 DOCKER_REPOSITORY="${DOCKER_REPOSITORY,,}"
@@ -150,12 +158,6 @@ rm -rf "requirements.txt"; if [ -f "requirements.txt.$POSTFIX.bak" ]; then mv -f
 rm -rf ".dockerignore"; if [ -f ".dockerignore.$POSTFIX.bak" ]; then mv -f .dockerignore.$POSTFIX.bak .dockerignore; fi
 
 # generate staging folder
-if [ ! -z "$JENKINS_HOME" ]; then
-  ### JENKINS
-  STAGING_DIR=/media/nfs/jenkins/$DOCKER_REPOSITORY/$DOCKER_TAG
-else
-  STAGING_DIR="./.staging"
-fi
 if [ $(grep -inr --include \*.py -R "'logs'" | wc -l) -ne 0 ]; then
   LOG_DIR="logs"
 else
@@ -217,7 +219,7 @@ docker run --rm -it \
 EOF
 elif [ -f "./ValleyExpressSelect.py" ]; then
 cat <<EOF >> $STAGING_DIR"/run.sh"
-docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
+docker load < "$SAVED_DOCKER_IMAGE_FILE_NAME"
 docker volume rm rep
 docker volume create \
   --driver local \
@@ -236,7 +238,7 @@ docker run --rm -it \
 EOF
 else # strategy
 cat <<EOF >> $STAGING_DIR"/run.sh"
-docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
+docker load < "$SAVED_DOCKER_IMAGE_FILE_NAME"
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
@@ -249,10 +251,10 @@ fi
 
 # save docker image
 echo saving docker image ...
-$SUDO rm -rf $STAGING_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
+$SUDO rm -rf $STAGING_DIR/$SAVED_DOCKER_IMAGE_FILE_NAME
 $SUDO mkdir -p $STAGING_DIR
 $SUDO chmod -R 777 $STAGING_DIR
-$SUDO docker save $DOCKER_REPOSITORY:$DOCKER_TAG | gzip > $STAGING_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
+$SUDO docker save $DOCKER_REPOSITORY:$DOCKER_TAG | gzip > $STAGING_DIR/$SAVED_DOCKER_IMAGE_FILE_NAME
 echo docker image saved with RC=$?
 
 # cleanup images
