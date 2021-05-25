@@ -205,7 +205,7 @@ do
       ;;
   esac
 done
-docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
+docker load < "$SAVED_DOCKER_IMAGE_FILE_NAME"
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
