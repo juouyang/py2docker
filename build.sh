@@ -133,7 +133,7 @@ EOF
 if [ $(grep -inr --include \*.py -R "from mqtt_client import Client" | wc -l) -ne 0 ]; then
 # install mqtt_client, custom package of Doquant
 cat <<EOF >> Dockerfile.$POSTFIX
-RUN python -m wget https://github.com/juouyang-aicots/py2docker/raw/main/mqtt_client-ba00a472.tar -o /tmp/mqtt_client.tar \
+RUN python -m wget https://github.com/juouyang-aicots/py2docker/raw/main/mqtt_client-2021-W21.tar -o /tmp/mqtt_client.tar \
   && tar -xf /tmp/mqtt_client.tar -C /usr/local/lib/python3.8/site-packages/
 EOF
 fi
