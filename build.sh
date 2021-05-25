@@ -1,7 +1,7 @@
 #!/bin/bash
 SUDO=''
 if (( $EUID != 0 )); then SUDO='sudo'; fi
-TIMESTAMP=$(date +"%Y%m%d%H%M%S.%3N")
+TIMESTAMP=$(TZ=":Asia/Taipei" date +"%Y%m%d%H%M%S.%3N")
 POSTFIX=$RANDOM
 PYTHON_VERSION='3.8'
 STRATEGY_NAME=$(basename "$PWD")
@@ -92,7 +92,7 @@ do
   currentTime=\$(TZ=":Asia/Taipei" date +"%H%M")
   echo -n .
   if [ "\$currentTime" == "0810" ]; then
-    echo "Trigger $APP_ENTRYPOINT at "\$(TZ=":Asia/Taipei" date)
+    echo "Trigger $APP_ENTRYPOINT at Asia/Taipei "\$(TZ=":Asia/Taipei" date)
     RC=1
     while [ \$RC -ne 0 ]
     do
@@ -151,11 +151,9 @@ rm -rf ".dockerignore"; if [ -f ".dockerignore.$POSTFIX.bak" ]; then mv -f .dock
 # generate staging folder
 if [ ! -z "$JENKINS_HOME" ]; then
   ### JENKINS
-  STAGING_DIR=/media/nfs/jenkins/$JOB_NAME
-  DOCKER_SAVE_DIR=/media/nfs/jenkins/$JOB_NAME
+  STAGING_DIR=/media/nfs/jenkins/$DOCKER_REPOSITORY/$DOCKER_TAG
 else
   STAGING_DIR="./.staging"
-  DOCKER_SAVE_DIR=$STAGING_DIR
 fi
 if [ $(grep -inr --include \*.py -R "'logs'" | wc -l) -ne 0 ]; then
   LOG_DIR="logs"
@@ -204,7 +202,7 @@ do
       ;;
   esac
 done
-docker load < "$STRATEGY_NAME-$TIMESTAMP.tar"
+docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
@@ -218,7 +216,7 @@ docker run --rm -it \
 EOF
 elif [ -f "./ValleyExpressSelect.py" ]; then
 cat <<EOF >> $STAGING_DIR"/run.sh"
-docker load < "$STRATEGY_NAME-$TIMESTAMP.tar"
+docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
 docker volume rm rep
 docker volume create \
   --driver local \
@@ -237,7 +235,7 @@ docker run --rm -it \
 EOF
 else # strategy
 cat <<EOF >> $STAGING_DIR"/run.sh"
-docker load < "$STRATEGY_NAME-$TIMESTAMP.tar"
+docker load < "$STRATEGY_NAME-$TIMESTAMP.tar.gz"
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
@@ -250,10 +248,10 @@ fi
 
 # save docker image
 echo saving docker image ...
-$SUDO rm -rf $DOCKER_SAVE_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
-$SUDO mkdir -p $DOCKER_SAVE_DIR
-$SUDO chmod -R 777 $DOCKER_SAVE_DIR
-$SUDO docker save $DOCKER_REPOSITORY:$DOCKER_TAG > $DOCKER_SAVE_DIR/$STRATEGY_NAME-$TIMESTAMP.tar
+$SUDO rm -rf $STAGING_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
+$SUDO mkdir -p $STAGING_DIR
+$SUDO chmod -R 777 $STAGING_DIR
+$SUDO docker save $DOCKER_REPOSITORY:$DOCKER_TAG | gzip > $STAGING_DIR/$STRATEGY_NAME-$TIMESTAMP.tar.gz
 echo docker image saved with RC=$?
 
 # cleanup images
