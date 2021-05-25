@@ -4,7 +4,6 @@ if (( $EUID != 0 )); then SUDO='sudo'; fi
 TIMESTAMP=$(TZ=":Asia/Taipei" date +"%Y%m%d%H%M%S.%3N")
 POSTFIX=$RANDOM
 PYTHON_VERSION='3.8'
-STRATEGY_NAME=$(basename "$PWD")
 
 # check entrypoint
 if [ -f "__main__.py" ] && [ "$(ls -la *.py | grep -v __main__.py | wc -l)" == "1"  ]; then
@@ -27,9 +26,11 @@ if [ ! -z "$JENKINS_HOME" ]; then
   ### JENKINS, JOB_NAME=userID'strategyID
   DOCKER_REPOSITORY=$(tr \' \/ <<< "$JOB_NAME") # DOCKER_REPOSITORY=userID/strategyID
   CONTAINER_NAME=$(tr \' - <<< "$JOB_NAME") # CONTAINER_NAME=userID-strategyID
+  STRATEGY_NAME=$(tr "'" "\n" <<< $JOB_NAME | sed -n '2p') #STRATEGY_NAME=strategyID
 else
   DOCKER_REPOSITORY=$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # DOCKER_REPOSITORY=userID/strategyID
   CONTAINER_NAME=$(basename $(dirname "$PWD"))"-"$(basename "$PWD") # CONTAINER_NAME=userID-strategyID
+  STRATEGY_NAME=$(basename "$PWD")
 fi
 DOCKER_REPOSITORY=$DOCKER_REPOSITORY
 DOCKER_REPOSITORY="${DOCKER_REPOSITORY,,}"
