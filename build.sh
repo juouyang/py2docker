@@ -33,7 +33,7 @@ if [ ! -z "$JENKINS_HOME" ]; then
   PROJECT_ID=$(tr "'" "\n" <<< $JOB_NAME | sed -n '3p')
   DOCKER_REPOSITORY=$(tr \' \/ <<< $JOB_NAME) # groupName/userID/projectID
   CONTAINER_NAME=$USER_ID"-"$PROJECT_ID # CONTAINER_NAME=userID-projectID
-  STAGING_DIR=/media/nfs/jenkins/$DOCKER_REPOSITORY/$DOCKER_TAG
+  STAGING_DIR=/media/nfs/jenkins/$DOCKER_REPOSITORY/$TIMESTAMP
   SAVED_DOCKER_IMAGE_FILE_NAME=$CONTAINER_NAME"-"$TIMESTAMP"_"$GIT_COMMIT".tar.gz"
 else
   ### groupName/
