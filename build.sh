@@ -11,9 +11,14 @@ if [ -f "__main__.py" ] && [ "$(ls -la *.py | grep -v __main__.py | wc -l)" == "
 elif [ -f "__main__.py" ]; then
   APP_ENTRYPOINT="__main__.py"
 else
-  #echo -n "Input filename.py of entrypoint: "
-  #read APP_ENTRYPOINT
-  APP_ENTRYPOINT="${APP_ENTRYPOINT:=ValleyExpressSelect.py}"
+  # try to find entrypoint
+  if [ "$(find . -maxdepth 1 -type f | xargs grep -lnRE 'if __name__|__main__' --include=*.py | wc -l)" == "1" ]; then
+    ENTRYPOINT=$(find . -maxdepth 1 -type f | xargs grep -lnRE 'if __name__|__main__' --include=*.py)
+    APP_ENTRYPOINT=$(basename $ENTRYPOINT)
+  else
+    # failed to find entrypoint
+    APP_ENTRYPOINT=$TIMESTAMP.$POSTFIX
+  fi
 fi
 if [ ! -f "$APP_ENTRYPOINT" ]; then echo "Entrypoint: $APP_ENTRYPOINT not found" && exit 300; fi
 
@@ -27,7 +32,7 @@ if [ ! -z "$JENKINS_HOME" ]; then
   USER_ID=$(tr "'" "\n" <<< $JOB_NAME | sed -n '2p')
   PROJECT_ID=$(tr "'" "\n" <<< $JOB_NAME | sed -n '3p')
   DOCKER_REPOSITORY=$(tr \' \/ <<< $JOB_NAME) # groupName/userID/projectID
-  CONTAINER_NAME=$USER_ID"-"$PROJECT_ID # CONTAINER_NAME=userID-strategyID
+  CONTAINER_NAME=$USER_ID"-"$PROJECT_ID # CONTAINER_NAME=userID-projectID
   STAGING_DIR=/media/nfs/jenkins/$DOCKER_REPOSITORY/$DOCKER_TAG
   SAVED_DOCKER_IMAGE_FILE_NAME=$CONTAINER_NAME"-"$TIMESTAMP"_"$GIT_COMMIT".tar.gz"
 else
@@ -35,8 +40,8 @@ else
   ### └── userID
   ###   └── projectID
   # PROJECT_ID=$(basename "$PWD")
-  DOCKER_REPOSITORY=$(basename $(dirname $(dirname "$PWD")))"/"$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # groupName/userID/strategyID
-  CONTAINER_NAME=$(basename $(dirname "$PWD"))"-"$(basename "$PWD") # CONTAINER_NAME=userID-strategyID
+  DOCKER_REPOSITORY=$(basename $(dirname $(dirname "$PWD")))"/"$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # groupName/userID/projectID
+  CONTAINER_NAME=$(basename $(dirname "$PWD"))"-"$(basename "$PWD") # CONTAINER_NAME=userID-projectID
   STAGING_DIR="./.staging"
   SAVED_DOCKER_IMAGE_FILE_NAME=$CONTAINER_NAME"-"$TIMESTAMP".tar.gz"
 fi
