@@ -221,6 +221,8 @@ do
   esac
 done
 docker load < "$SAVED_DOCKER_IMAGE_FILE_NAME"
+LOG_DIR=$LOG_DIR"-"\$opt
+mkdir -p $LOG_DIR
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
