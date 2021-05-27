@@ -222,12 +222,12 @@ do
 done
 docker load < "$SAVED_DOCKER_IMAGE_FILE_NAME"
 LOG_DIR=$LOG_DIR"-"\$opt
-mkdir -p $LOG_DIR
+mkdir -p \$LOG_DIR
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
   -e AccountType=\$opt \
-  -v \$(pwd)/$LOG_DIR/:/builds/app/$LOG_DIR \
+  -v \$(pwd)/\$LOG_DIR/:/builds/app/$LOG_DIR \
   -v \$(pwd)/AccountPassword/Config.json:/builds/app/reference/Config.json \
   -v \$(pwd)/AccountPassword/private_key.pem:/builds/app/reference/private_key.pem \
   -v \$(pwd)/AccountPassword/Sinopac.pfx:/builds/app/reference/Sinopac.pfx \
