@@ -121,6 +121,16 @@ do
   sleep 60
 done
 EOF
+elif [ -f "./TradeBot.py" ]; then
+cat <<EOF > my_wrapper_script.sh
+#!/bin/bash
+while true
+do
+  python $APP_ENTRYPOINT
+  sleep 3
+  echo "Trigger $CONTAINER_NAME at Asia/Taipei "\$(TZ=":Asia/Taipei" date)
+done
+EOF
 else # strategy template
 cat <<EOF > my_wrapper_script.sh
 #!/bin/bash
