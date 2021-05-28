@@ -178,7 +178,7 @@ if [ $(grep -inr --include \*.py -R "'logs'" | wc -l) -ne 0 ]; then
 else
   LOG_DIR="log"
 fi
-mkdir -p $STAGING_DIR"/"$LOG_DIR
+mkdir -p $STAGING_DIR
 chmod -R 777 $STAGING_DIR
 
 # generate run.sh
@@ -236,6 +236,8 @@ docker run --rm -it \
 EOF
 elif [ -f "./ValleyExpressSelect.py" ]; then
 cat <<EOF >> $STAGING_DIR"/run.sh"
+LOG_DIR=$LOG_DIR
+mkdir -p \$LOG_DIR
 docker load < "$SAVED_DOCKER_IMAGE_FILE_NAME"
 docker volume rm rep
 docker volume create \
@@ -248,18 +250,20 @@ docker volume inspect rep
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
-  -v \$(pwd)/$LOG_DIR/:/builds/app/$LOG_DIR \
+  -v \$(pwd)/\$LOG_DIR/:/builds/app/$LOG_DIR \
   -v rep:/builds/rep \
   --name $CONTAINER_NAME \
   $DOCKER_REPOSITORY:$DOCKER_TAG
 EOF
 else # strategy
 cat <<EOF >> $STAGING_DIR"/run.sh"
+LOG_DIR=$LOG_DIR
+mkdir -p \$LOG_DIR
 docker load < "$SAVED_DOCKER_IMAGE_FILE_NAME"
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
-  -v \$(pwd)/$LOG_DIR/:/builds/app/$LOG_DIR \
+  -v \$(pwd)/\$LOG_DIR/:/builds/app/$LOG_DIR \
   -v rep:/builds/rep \
   --name $CONTAINER_NAME \
   $DOCKER_REPOSITORY:$DOCKER_TAG
