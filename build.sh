@@ -255,6 +255,41 @@ docker run --rm -it \
   --name $CONTAINER_NAME \
   $DOCKER_REPOSITORY:$DOCKER_TAG
 EOF
+elif [ -f "./D9866A36.py" ]; then
+cat <<EOF >> $STAGING_DIR"/run.sh"
+function finish() {
+  docker stop $CONTAINER_NAME
+}
+trap finish SIGINT
+LOG_DIR=$LOG_DIR
+mkdir -p \$LOG_DIR
+docker load < "$SAVED_DOCKER_IMAGE_FILE_NAME"
+docker stop $CONTAINER_NAME
+docker run --rm -d \
+  -e MQTT_IP=\$MQTT_IP \
+  -e MQTT_PORT=\$MQTT_PORT \
+  -v \$(pwd)/\$LOG_DIR/:/builds/app/$LOG_DIR \
+  -v rep:/builds/rep \
+  --name $CONTAINER_NAME \
+  $DOCKER_REPOSITORY:$DOCKER_TAG
+while true
+do
+  currentTime=\$(TZ=":Asia/Taipei" date +"%H%M")
+  echo -n .
+  if [ "\$currentTime" == "0750" ]; then
+    echo "Trigger $APP_ENTRYPOINT at Asia/Taipei "\$(TZ=":Asia/Taipei" date)
+    docker stop $CONTAINER_NAME
+    docker run --rm -d \
+      -e MQTT_IP=\$MQTT_IP \
+      -e MQTT_PORT=\$MQTT_PORT \
+      -v \$(pwd)/\$LOG_DIR/:/builds/app/$LOG_DIR \
+      -v rep:/builds/rep \
+      --name $CONTAINER_NAME \
+      $DOCKER_REPOSITORY:$DOCKER_TAG
+  fi
+  sleep 60
+done
+EOF
 else # strategy
 cat <<EOF >> $STAGING_DIR"/run.sh"
 LOG_DIR=$LOG_DIR
