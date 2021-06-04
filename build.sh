@@ -13,8 +13,8 @@ elif [ -f "__main__.py" ]; then
 else
   # try to find entrypoint
   if [ "$(find . -maxdepth 1 -type f | xargs grep -lnRE 'if __name__|__main__' --include=*.py | wc -l)" == "1" ]; then
-    ENTRYPOINT=$(find . -maxdepth 1 -type f | xargs grep -lnRE 'if __name__|__main__' --include=*.py)
-    APP_ENTRYPOINT=$(basename $ENTRYPOINT)
+    MAIN_PY=$(find . -maxdepth 1 -type f | xargs grep -lnRE 'if __name__|__main__' --include=*.py)
+    APP_ENTRYPOINT=$(basename $MAIN_PY)
   else
     # failed to find entrypoint
     APP_ENTRYPOINT=$TIMESTAMP.$POSTFIX
@@ -39,7 +39,7 @@ else
   ### groupName/
   ### └── userID
   ###   └── projectID
-  # PROJECT_ID=$(basename "$PWD")
+  PROJECT_ID=$(basename "$PWD")
   DOCKER_REPOSITORY=$(basename $(dirname $(dirname "$PWD")))"/"$(basename $(dirname "$PWD"))"/"$(basename "$PWD") # groupName/userID/projectID
   CONTAINER_NAME=$(basename $(dirname "$PWD"))"-"$(basename "$PWD") # CONTAINER_NAME=userID-projectID
   STAGING_DIR="./.staging"
@@ -139,25 +139,23 @@ EOF
 fi
 chmod +x my_wrapper_script.sh
 
+# USER root
+# RUN mkdir -p /builds/app/$PROJECT_ID
 # generate Dockerfile
 TZ="${TZ:=Asia/Taipei}"
 cat <<EOF > Dockerfile.$POSTFIX
 FROM python:$PYTHON_VERSION-slim
-USER root
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt \
- && mkdir -p /builds/app
-COPY ./ /builds/app/
-WORKDIR /builds/app
+ADD ./ /builds/app/$PROJECT_ID
+WORKDIR /builds/app/$PROJECT_ID
+RUN pip install -r /builds/app/$PROJECT_ID/requirements.txt
 ENV TZ "$TZ"
-COPY my_wrapper_script.sh my_wrapper_script.sh
 CMD bash
-ENTRYPOINT ./my_wrapper_script.sh
+ENTRYPOINT /builds/app/$PROJECT_ID/my_wrapper_script.sh
 EOF
-if [ $(grep -inr --include \*.py -R "from mqtt_client import Client" | wc -l) -ne 0 ]; then
+if [ $(grep -inr --include \*.py -R "from mqtt_client import *" | wc -l) -ne 0 ]; then
 # install mqtt_client, custom package of Doquant
 cat <<EOF >> Dockerfile.$POSTFIX
-RUN python -m wget https://github.com/juouyang-aicots/py2docker/raw/main/mqtt_client_b373dd4c.tar -o /tmp/mqtt_client.tar \
+RUN python -m wget https://github.com/juouyang-aicots/py2docker/raw/main/mqtt_client_8334c6ae.tar -o /tmp/mqtt_client.tar \
   && mkdir -p /usr/local/lib/python3.8/site-packages/mqtt_client/ \
   && tar -xf /tmp/mqtt_client.tar -C /usr/local/lib/python3.8/site-packages/mqtt_client/
 EOF
@@ -227,7 +225,7 @@ docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
   -e AccountType=\$opt \
-  -v \$(pwd)/\$LOG_DIR/:/builds/app/$LOG_DIR \
+  -v \$(pwd)/\$LOG_DIR/:/builds/app/$PROJECT_ID/$LOG_DIR \
   -v \$(pwd)/AccountPassword/Config.json:/builds/app/reference/Config.json \
   -v \$(pwd)/AccountPassword/private_key.pem:/builds/app/reference/private_key.pem \
   -v \$(pwd)/AccountPassword/Sinopac.pfx:/builds/app/reference/Sinopac.pfx \
@@ -250,7 +248,7 @@ docker volume inspect rep
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
-  -v \$(pwd)/\$LOG_DIR/:/builds/app/$LOG_DIR \
+  -v \$(pwd)/\$LOG_DIR/:/builds/app/$PROJECT_ID/$LOG_DIR \
   -v rep:/builds/rep \
   --name $CONTAINER_NAME \
   $DOCKER_REPOSITORY:$DOCKER_TAG
@@ -268,7 +266,7 @@ docker stop $CONTAINER_NAME
 docker run --rm -d \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
-  -v \$(pwd)/\$LOG_DIR/:/builds/app/$LOG_DIR \
+  -v \$(pwd)/\$LOG_DIR/:/builds/app/$PROJECT_ID/$LOG_DIR \
   -v rep:/builds/rep \
   --name $CONTAINER_NAME \
   $DOCKER_REPOSITORY:$DOCKER_TAG
@@ -282,7 +280,7 @@ do
     docker run --rm -d \
       -e MQTT_IP=\$MQTT_IP \
       -e MQTT_PORT=\$MQTT_PORT \
-      -v \$(pwd)/\$LOG_DIR/:/builds/app/$LOG_DIR \
+      -v \$(pwd)/\$LOG_DIR/:/builds/app/$PROJECT_ID/$LOG_DIR \
       -v rep:/builds/rep \
       --name $CONTAINER_NAME \
       $DOCKER_REPOSITORY:$DOCKER_TAG
@@ -298,7 +296,7 @@ docker load < "$SAVED_DOCKER_IMAGE_FILE_NAME"
 docker run --rm -it \
   -e MQTT_IP=\$MQTT_IP \
   -e MQTT_PORT=\$MQTT_PORT \
-  -v \$(pwd)/\$LOG_DIR/:/builds/app/$LOG_DIR \
+  -v \$(pwd)/\$LOG_DIR/:/builds/app/$PROJECT_ID/$LOG_DIR \
   -v rep:/builds/rep \
   --name $CONTAINER_NAME \
   $DOCKER_REPOSITORY:$DOCKER_TAG
